@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AbstractContentViewer</title>
+    <script type="application/javascript">
+        function init() {
+            window.data = getData();
+            setXapiObjectGetter(getXapiObject);
+            registerOnSubmitListener(onSubmit);
+        }
+        function updateLayout() {
+            propagateLayoutChanges();
+        }
+        function sendStatement(stmt) {
+            sendXapiStatement(stmt);
+        }
+    </script>
+</head>
+<body>
+    <!-- EXAMPLE CODE - EDIT BELOW TO VIEW DATA -->
+    <h1 id="title"></h1>
+    <script type="application/javascript">
+        init();
+        document.getElementById('title').innerHTML = data.title;
+        updateLayout();
+    </script>
+    <!-- END OF EXAMPLE CODE -->
+</body>
+</html>
