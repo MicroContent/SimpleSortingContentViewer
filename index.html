@@ -17,16 +17,230 @@
         }
     </script>
     <style type ="text/css">
-        /* TODO */
+        .answer {
+            display: flex;
+        }
     </style>
 </head>
 <body>
-   
+    <div id="question"></div>
+    <div id="sortingContainer"></div>
+    <div id="contextContainer">
+        <p id="showContextHeader" style="cursor: pointer; cursor: hand;" onclick="showHideContext()"></p>
+        <p id="contextContentContainer"></p>
+    </div>
+    <div id="answerX" class="answer">
+            <p>value</p>
+            <button>+</button>
+            <button>-</button>
+        </div>
+
     <script type="application/javascript">
+        function getXapiObject(){
+            return {
+                "objectType": "Activity",
+                // id is set by hosting application
+                "id": undefined,
+                "definition": {
+                    "description": {
+                        "en-US": window.data.question,
+                        "de-AT": window.data.question
+                    },
+                    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+                    "interactionType": "sequencing",
+                    "correctResponsesPattern": [
+                        "tim[,]mike[,]ells[,]ben"
+                    ],
+                    "choices": [
+                        {
+                            "id": "tim", 
+                            "description": {
+                                "en-US": "Tim"
+                            }
+                        },
+                        {
+                            "id": "ben", "description": {
+                                "en-US": "Ben"
+                            }
+                        },
+                        {
+                            "id": "ells", 
+                            "description": {
+                                "en-US": "Ells"
+                            }
+                        },
+                        {
+                            "id": "mike", 
+                            "description": {
+                                "en-US": "Mike"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        
+        function setQuestion() {
+            document.getElementById('question').innerHTML = window.data.question;
+        }
+
+        function setSortingOptions(){
+            document.getElementById('sortingContainer').innerHTML = window.data.answers.map(
+                    function (cur) {
+                        return '<div id="answer'+ cur.id +'" class="answer">'+
+                                '<p>' + cur.value + '</p>' +
+                                '<button onclick="onMoveUp()">+</button>'+
+                                '<button onclick="onMoveDown()">-</button>'+
+                                '</div>';
+                    }).reduce(function (acc, cur) {
+                return acc + cur
+            }, '');
+        }
+        function setContext(){
+            document.getElementById('contextContentContainer').innerHTML =
+                    isShowingSolution ? window.data.answerContext : window.data.questionContext;
+            // we call showHide once to hide it for hint and to show it for explanation
+            isContextShown = !isShowingSolution;
+            showHideContext();
+        }
+
+        function onSubmit(){}
+        function onInteraction(){}
+
+        function showHideContext(){
+            var ctxString = isShowingSolution ? 'Explanation' : 'Hint';
+            if (isContextShown) {
+                document.getElementById('showContextHeader').innerHTML = 'Show ' + ctxString;
+                document.getElementById('contextContentContainer').setAttribute('hidden', '');
+            } else {
+                document.getElementById('showContextHeader').innerHTML = 'Hide ' + ctxString;
+                document.getElementById('contextContentContainer').removeAttribute('hidden');
+            }
+            isContextShown = !isContextShown;
+            updateLayout();
+        }
+
         init();
-        document.getElementById('title').innerHTML = data.title;
-        updateLayout();
+
+        var isShowingSolution = false;
+        var isContextShown = false;
+
+        setQuestion();
+        setSortingOptions();
+        setContext();
     </script>
+    <!-- 
+
+
+        function onInteraction() {
+            var stmt = {};
+            // actor is set by hosting application
+            stmt.actor = undefined;
+            stmt.verb = {
+                "id": "http://adlnet.gov/expapi/verbs/interacted",
+                "display": {
+                    "de-DE": "interagierte",
+                    "en-US": "interacted",
+                    "fr-FR": "a interagi",
+                    "es-ES": "interactuó"
+                }
+            };
+            stmt.object = getXapiObject();
+            var checkboxes = document.getElementsByClassName('answerCheckbox');
+            var responses = [];
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    responses.push(i.toString());
+                }
+            }
+            stmt.result = {
+                response: responses.reduce(function (acc, e) {
+                    return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
+                }, "")
+            };
+            sendStatement(stmt);
+        }
+
+        function getXapiObject() {
+            return {
+                "objectType": "Activity",
+                // id is set by hosting application
+                "id": undefined,
+                "definition": {
+                    "description": {
+                        "de-AT": window.data.question
+                    },
+                    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+                    "interactionType": "choice",
+                    "choices": data.answers.map(function (e, i) {
+                        return {
+                            id: i.toString(),
+                            description: {
+                                "de-AT": e.value
+                            }
+                        }
+                    }),
+                    "correctResponsesPattern": [data.answers.map(function (e, i) {
+                                return e.correct ? i.toString() : ""
+                            })
+                            .reduce(function (acc, e) {
+                                return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
+                            }, "")]
+                }
+            };
+        }
+
+        function onSubmit() {
+            var checkboxLabels = document.getElementsByClassName('answerCheckboxLabel');
+            var checkboxes = document.getElementsByClassName('answerCheckbox');
+            if (!isShowingSolution) {
+                var responses = [];
+                var allRight = true;
+                // assign classes and disable
+                for (var i = 0; i < checkboxes.length; i++) {
+                    var isChecked = checkboxes[i].checked;
+                    var isCorrect = window.data.answers[i].correct;
+                    allRight = allRight && (isChecked === isCorrect);
+                    checkboxLabels[i].classList.add(isChecked ? (isCorrect ? 'truechecked' : 'falsechecked') : (isCorrect ? 'trueunchecked' : 'falseunchecked'));
+                    checkboxes[i].setAttribute('disabled', 'true');
+                    if (isChecked) {
+                        responses.push(i.toString());
+                    }
+                }
+                var stmt = {};
+                // actor is set by hosting application
+                stmt.actor = undefined;
+                stmt.verb = {
+                    "id": "http://adlnet.gov/expapi/verbs/answered",
+                    "display": {
+                        "de-DE": "beantwortete",
+                        "en-US": "answered",
+                        "fr-FR": "a répondu",
+                        "es-ES": "contestó"
+                    }
+                };
+                stmt.object = getXapiObject();
+                stmt.result = {
+                    response: responses.reduce(function (acc, e) {
+                        return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
+                    }, ""),
+                    success: allRight
+                };
+                sendStatement(stmt);
+                isShowingSolution = true;
+            } else {
+                // remove classes and enable
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxLabels[i].setAttribute('class', 'answerCheckboxLabel');
+                    checkboxes[i].removeAttribute('disabled');
+                }
+                isShowingSolution = false;
+            }
+            setContext();
+        }
+        
+    </script>
+     --> 
 
 </body>
 </html>
