@@ -84,7 +84,7 @@
                     function (cur) {
                         return '<div id="answer'+ cur.id +'" class="answer">'+
                                 '<p>' + cur.value + '</p>' +
-                                '<button onclick="onMoveUp(this)">+</button>'+
+                                '<button onclick="$(this).closest("div").remove();">+</button>'+
                                 '<button onclick="onMoveDown(this)">-</button>'+
                                 '</div>';
                     }).reduce(function (acc, cur) {
