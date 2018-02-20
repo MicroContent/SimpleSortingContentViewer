@@ -30,6 +30,10 @@
         <p id="contextContentContainer"></p>
     </div>
 
+    <!-- for testing only -->
+    <h1>testingfunction</h1><div id="testingfunction"></div>
+    <!-- for testing only -->
+
     <script type="application/javascript">
         function getXapiObject(){
             return {
@@ -103,14 +107,9 @@
         function onSubmit(){}
         function onInteraction(){}
 
-        function onMoveUp(e){
-            console.log(e);
-            return;
-        }
+        function onMoveUp(e){testingfunction(e);}
 
-        function onMoveDown(e){
-            //alert("lol");
-        }
+        function onMoveDown(e){}
 
         function showHideContext(){
             var ctxString = isShowingSolution ? 'Explanation' : 'Hint';
@@ -133,6 +132,10 @@
         setQuestion();
         setSortingOptions();
         setContext();
+
+        // testingfunction for Testing only
+        function testingfunction (e) {document.getElementById('testingfunction').innerHTML = JSON.stringify(e);}
+        // testingfunction for Testing only
     </script>
     <!-- 
 
