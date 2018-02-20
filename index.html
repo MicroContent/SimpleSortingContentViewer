@@ -84,12 +84,16 @@
                     function (cur) {
                         return '<div id="answer'+ cur.id +'" class="answer">'+
                                 '<p>' + cur.value + '</p>' +
-                                '<button onclick="$(this).closest("div").remove();">+</button>'+
-                                '<button onclick="onMoveDown(this)">-</button>'+
+                                '<button class="up'+cur.id+'">+</button>'+
+                                '<button class="down'+cur.id+'">-</button>'+
                                 '</div>';
                     }).reduce(function (acc, cur) {
                 return acc + cur
             }, '');
+            for(currentId = 0; currentId < window.data.answers.length; currentId++ ) {
+                document.getElementsByClassName("up"+currentId).addEventListener('click', onMoveUp(this));
+                document.getElementsByClassName("down"+currentId).addEventListener('click', onMoveDown(this));
+            }
         }
         function setContext(){
             document.getElementById('contextContentContainer').innerHTML =
@@ -101,8 +105,14 @@
 
         function onSubmit(){}
         function onInteraction(){}
-        function onMoveUp(e){console.log(e);}
-        function onMoveDown(e){console.log(e);}
+
+        function onMoveUp(e){
+            console.log(e);
+        }
+
+        function onMoveDown(e){
+            console.log(e);
+        }
 
         function showHideContext(){
             var ctxString = isShowingSolution ? 'Explanation' : 'Hint';
