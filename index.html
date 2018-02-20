@@ -84,7 +84,7 @@
                     function (cur) {
                         return '<div id="answer'+ cur.id +'" class="answer">'+
                                 '<p>' + cur.value + '</p>' +
-                                '<button class="up'+cur.id+'">+</button>'+
+                                '<button class="up">+</button>'+
                                 '<button class="down'+cur.id+'">-</button>'+
                                 '</div>';
                     }).reduce(function (acc, cur) {
@@ -107,11 +107,11 @@
         function onInteraction(){}
 
         function onMoveUp(e){
-            alert("lol");
+            //alert("lol");
         }
 
         function onMoveDown(e){
-            alert("lol");
+            //alert("lol");
         }
 
         function showHideContext(){
