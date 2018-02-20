@@ -29,11 +29,6 @@
         <p id="showContextHeader" style="cursor: pointer; cursor: hand;" onclick="showHideContext()"></p>
         <p id="contextContentContainer"></p>
     </div>
-    <div id="answerX" class="answer">
-            <p>value</p>
-            <button>+</button>
-            <button>-</button>
-        </div>
 
     <script type="application/javascript">
         function getXapiObject(){
@@ -106,6 +101,8 @@
 
         function onSubmit(){}
         function onInteraction(){}
+        function onMoveUp(this){console.log("test");}
+        function onMoveDown(this){console.log("test");}
 
         function showHideContext(){
             var ctxString = isShowingSolution ? 'Explanation' : 'Hint';
@@ -240,6 +237,11 @@
         }
         
     </script>
+
+encodeURIComponent('{"title":"test","answers":[{"value":"Apfel","id":"1"},{"value":"Birnen","id":"2"},{"value":"Gurke","id":"3"},{"value":"Melone","id":"4"},{"value":"Kirsche","id":"5"}]}')
+http://www.goeschlberger.com/microcontent/?data=HIEREINFÜGEN&url=https://raw.githubusercontent.com/MicroContent/SimpleSortingContentViewer/master/index.html
+
+http://www.goeschlberger.com/microcontent/?data=%7B%22title%22%3A%22test%22%2C%22answers%22%3A%5B%7B%22value%22%3A%22Apfel%22%2C%22id%22%3A%221%22%7D%2C%7B%22value%22%3A%22Birnen%22%2C%22id%22%3A%222%22%7D%2C%7B%22value%22%3A%22Gurke%22%2C%22id%22%3A%223%22%7D%2C%7B%22value%22%3A%22Melone%22%2C%22id%22%3A%224%22%7D%2C%7B%22value%22%3A%22Kirsche%22%2C%22id%22%3A%225%22%7D%5D%7D&url=https://raw.githubusercontent.com/MicroContent/SimpleSortingContentViewer/master/index.html
      --> 
 
 </body>
