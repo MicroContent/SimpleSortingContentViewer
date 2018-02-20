@@ -85,7 +85,7 @@
                         return '<div id="answer'+ cur.id +'" class="answer">'+
                                 '<p>' + cur.value + '</p>' +
                                 '<button class="up" onclick="onMoveUp(this)">+</button>'+
-                                '<button class="down'+cur.id+'">-</button>'+
+                                '<button class="down'+cur.id+'" onclick="onMoveUp(this)">-</button>'+
                                 '</div>';
                     }).reduce(function (acc, cur) {
                 return acc + cur
@@ -104,7 +104,8 @@
         function onInteraction(){}
 
         function onMoveUp(e){
-            //alert("lol");
+            console.log(e);
+            return;
         }
 
         function onMoveDown(e){
