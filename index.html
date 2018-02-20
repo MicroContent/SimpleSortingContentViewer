@@ -88,8 +88,8 @@
                     function (cur) {
                         return '<div id="answer'+ cur.id +'" class="answer">'+
                                 '<p>' + cur.value + '</p>' +
-                                '<button class="up" onclick="onMoveUp(this)">+</button>'+
-                                '<button class="down'+cur.id+'" onclick="onMoveUp(this)">-</button>'+
+                                '<button class="up" onclick="onMoveUp(event)">+</button>'+
+                                '<button class="down'+cur.id+'" onclick="onMoveUp(event)">-</button>'+
                                 '</div>';
                     }).reduce(function (acc, cur) {
                 return acc + cur
@@ -107,7 +107,7 @@
         function onSubmit(){}
         function onInteraction(){}
 
-        function onMoveUp(e){testingfunction(e.id);}
+        function onMoveUp(e){testingfunction(e);}
 
         function onMoveDown(e){}
 
