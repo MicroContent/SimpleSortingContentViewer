@@ -91,8 +91,8 @@
                 return acc + cur
             }, '');
             for(var currentId = 0; currentId < window.data.answers.length; currentId++ ) {
-                document.getElementsByClassName("up"+currentId).addEventListener('click', onMoveUp(this));
-                document.getElementsByClassName("down"+currentId).addEventListener('click', onMoveDown(this));
+                document.getElementsByClassName("up").addEventListener('click', onMoveUp(this));
+                document.getElementsByClassName("down").addEventListener('click', onMoveDown(this));
             }
         }
         function setContext(){
