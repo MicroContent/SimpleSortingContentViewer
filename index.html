@@ -90,7 +90,7 @@
                     }).reduce(function (acc, cur) {
                 return acc + cur
             }, '');
-            for(currentId = 0; currentId < window.data.answers.length; currentId++ ) {
+            for(var currentId = 0; currentId < window.data.answers.length; currentId++ ) {
                 document.getElementsByClassName("up"+currentId).addEventListener('click', onMoveUp(this));
                 document.getElementsByClassName("down"+currentId).addEventListener('click', onMoveDown(this));
             }
