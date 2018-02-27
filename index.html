@@ -25,6 +25,16 @@
             background-color: #3f51b5;
             margin-left: 5px;
             height: fit-content;
+            border: 0px;
+        }
+        .hide {
+            visibility: hidden;
+        }
+        .answertrue {
+            background-color: green;
+        }
+        .answerfalse {
+            background-color: red;
         }
     </style>
 </head>
@@ -32,7 +42,7 @@
     <div id="question"></div>
     <div id="sortingContainer"></div>
     <div id="contextContainer">
-        <p id="showContextHeader" style="cursor: pointer; cursor: hand;" onclick="showHideContext()"></p>
+        <button id="showContextHeader" class="btn btn-primary" onclick="showHideContext()"></button>
         <p id="contextContentContainer"></p>
     </div>
 
@@ -78,8 +88,8 @@
             //testingfunction(window.data.answers);
             document.getElementById('sortingContainer').innerHTML = window.data.answers.map(
                     function (cur, i) {
-                        var buttonUp = '<button class="up'+cur.id+'" onclick="onMoveUp('+cur.id+')">+</button>';
-                        var buttonDown = '<button class="down'+cur.id+'" onclick="onMoveDown('+cur.id+')">-</button>';
+                        var buttonUp = '<button class="voteButton up'+cur.id+'" onclick="onMoveUp('+cur.id+')">+</button>';
+                        var buttonDown = '<button class="voteButton down'+cur.id+'" onclick="onMoveDown('+cur.id+')">-</button>';
                         if (i==0) buttonUp = "";
                         if (i==(window.data.answers.length-1)) buttonDown = "";
                         return '<div id="answer'+ cur.id +'" class="answer">'+
@@ -126,8 +136,36 @@
                 };
                 sendStatement(stmt);
                 isShowingSolution = true;
-            } else {
+
+                //display answer state
+                var answers = document.getElementsByClassName('answer');
+                for (var i = 0; i < answers.length; i++) {
+                   if (window.data.answers[i].id == (i+1)) answers[i].classList.add("answertrue");
+                   else answers[i].classList.add("answerfalse");
+                }
+
+                //hide voting Buttons
+                var votingButtons = document.getElementsByClassName('voteButton');
+                for (var i = 0; i < votingButtons.length; i++) {
+                   votingButtons[i].classList.add("hide"); 
+                }
+            }
+            else {
                 // remove classes and enable
+
+                //remove answer state
+                var answers = document.getElementsByClassName('answer');
+                for (var i = 0; i < answers.length; i++) {
+                   if (window.data.answers[i].id == (i+1)) answers[i].classList.remove("answertrue");
+                   else answers[i].classList.remove("answerfalse");
+                }
+
+                // show voting buttons
+                var votingButtons = document.getElementsByClassName('voteButton');
+                for (var i = 0; i < votingButtons.length; i++) {
+                   votingButtons[i].classList.remove("hide"); 
+                }
+
                 isShowingSolution = false;
             }
             setContext();
