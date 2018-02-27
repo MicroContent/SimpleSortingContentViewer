@@ -20,6 +20,12 @@
         .answer {
             display: flex;
         }
+        .answer > button {
+            color: white;
+            background-color: #3f51b5;
+            margin-left: 5px;
+            height: fit-content;
+        }
     </style>
 </head>
 <body>
@@ -69,7 +75,7 @@
         }
 
         function setSortingOptions(){
-            testingfunction(window.data.answers);
+            //testingfunction(window.data.answers);
             document.getElementById('sortingContainer').innerHTML = window.data.answers.map(
                     function (cur, i) {
                         var buttonUp = '<button class="up'+cur.id+'" onclick="onMoveUp('+cur.id+')">+</button>';
@@ -77,6 +83,7 @@
                         if (i==0) buttonUp = "";
                         if (i==(window.data.answers.length-1)) buttonDown = "";
                         return '<div id="answer'+ cur.id +'" class="answer">'+
+                                '<p>' + (i+1) +'. </p>' +
                                 '<p>' + cur.value +'</p>' +
                                 buttonUp+
                                 buttonDown+
@@ -198,6 +205,11 @@
             return !(Boolean(current.localeCompare(shouldBe)));
         } 
 
+        function testingfunction (e) {
+            // testingfunction for Testing only
+            document.getElementById('testingfunction').innerHTML += JSON.stringify(e)+"<br>";
+        }
+
         init();
 
         var isShowingSolution = false;
@@ -206,12 +218,9 @@
         setQuestion();
         setSortingOptions();
         setContext();
-
-        // testingfunction for Testing only
-        function testingfunction (e) {document.getElementById('testingfunction').innerHTML += JSON.stringify(e)+"<br>";}
-        // testingfunction for Testing only
     </script>
     <!-- 
+
 
         function onSubmit() {
             var checkboxLabels = document.getElementsByClassName('answerCheckboxLabel');
