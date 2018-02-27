@@ -48,33 +48,18 @@
                     "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
                     "interactionType": "sequencing",
                     "correctResponsesPattern": [
-                        "tim[,]mike[,]ells[,]ben"
+                        window.data.answers.reduce(function (acc, e, i) {
+                                return (acc.length > 0) ? acc + "[,]" + (i+1) : (i+1)+"";
+                            }, "")
                     ],
-                    "choices": [
-                        {
-                            "id": "tim", 
-                            "description": {
-                                "en-US": "Tim"
-                            }
-                        },
-                        {
-                            "id": "ben", "description": {
-                                "en-US": "Ben"
-                            }
-                        },
-                        {
-                            "id": "ells", 
-                            "description": {
-                                "en-US": "Ells"
-                            }
-                        },
-                        {
-                            "id": "mike", 
-                            "description": {
-                                "en-US": "Mike"
+                    "choices": window.data.answers.map(function (e, i) {
+                        return {
+                            id: e.id.toString(),
+                            description: {
+                                "de-AT": e.value
                             }
                         }
-                    ]
+                    }) 
                 }
             }
         }
@@ -84,12 +69,17 @@
         }
 
         function setSortingOptions(){
+            testingfunction(window.data.answers);
             document.getElementById('sortingContainer').innerHTML = window.data.answers.map(
-                    function (cur) {
+                    function (cur, i) {
+                        var buttonUp = '<button class="up'+cur.id+'" onclick="onMoveUp('+cur.id+')">+</button>';
+                        var buttonDown = '<button class="down'+cur.id+'" onclick="onMoveDown('+cur.id+')">-</button>';
+                        if (i==0) buttonUp = "";
+                        if (i==(window.data.answers.length-1)) buttonDown = "";
                         return '<div id="answer'+ cur.id +'" class="answer">'+
-                                '<p>' + cur.value + '</p>' +
-                                '<button class="up" onclick="onMoveUp(event)">+</button>'+
-                                '<button class="down'+cur.id+'" onclick="onMoveUp(event)">-</button>'+
+                                '<p>' + cur.value +'</p>' +
+                                buttonUp+
+                                buttonDown+
                                 '</div>';
                     }).reduce(function (acc, cur) {
                 return acc + cur
@@ -104,12 +94,73 @@
             showHideContext();
         }
 
-        function onSubmit(){}
-        function onInteraction(){}
+        function onSubmit(){
+            if (!isShowingSolution) {
+                var allRight = true;
+                allRight = checkIfCurrentAnswersCorrect();
+                var stmt = {};
+                // actor is set by hosting application
+                stmt.actor = undefined;
+                stmt.verb = {
+                    "id": "http://adlnet.gov/expapi/verbs/answered",
+                    "display": {
+                        "de-DE": "beantwortete",
+                        "en-US": "answered",
+                        "fr-FR": "a répondu",
+                        "es-ES": "contestó"
+                    }
+                };
+                stmt.object = getXapiObject();
+                stmt.result = {
+                    response: window.data.answers.reduce(function (acc, e, i) {
+                                return (acc.length > 0) ? acc + "[,]" + e.id : e.id+"";
+                    }, ""),
+                    success: allRight
+                };
+                sendStatement(stmt);
+                isShowingSolution = true;
+            } else {
+                // remove classes and enable
+                isShowingSolution = false;
+            }
+            setContext();
+        }
 
-        function onMoveUp(e){testingfunction(e.target);}
+        function onInteraction(){
+            var stmt = {};
+            // actor is set by hosting application
+            stmt.actor = undefined;
+            stmt.verb = {
+                "id": "http://adlnet.gov/expapi/verbs/interacted",
+                "display": {
+                    "de-DE": "interagierte",
+                    "en-US": "interacted",
+                    "fr-FR": "a interagi",
+                    "es-ES": "interactuó"
+                }
+            };
+            stmt.object = getXapiObject();
+            stmt.result = {
+                response: window.data.answers.reduce(function (acc, e, i) {
+                                return (acc.length > 0) ? acc + "[,]" + e.id : e.id+"";
+                }, "")
+            };
+            sendStatement(stmt);
+        }
 
-        function onMoveDown(e){}
+        function onMoveUp(id){
+            var position = findIndexOfArrayElement(window.data.answers, id); 
+            window.data.answers = moveArrayElement(window.data.answers,position,position-1);
+            setSortingOptions();
+            onInteraction();
+        }
+
+        function onMoveDown(id){
+            var position = findIndexOfArrayElement(window.data.answers, id); 
+            window.data.answers = moveArrayElement(window.data.answers,position,position+1);
+            setSortingOptions();
+            onInteraction();
+        }
 
         function showHideContext(){
             var ctxString = isShowingSolution ? 'Explanation' : 'Hint';
@@ -124,6 +175,29 @@
             updateLayout();
         }
 
+        function moveArrayElement (array,from,to) {
+            //to reorder 1 element in array
+            array.splice(to,0,array.splice(from,1)[0]);
+            return array;
+        }
+
+        function findIndexOfArrayElement (array, id) {
+          for (var i = 0; i<array.length;i++) {
+            if (array[i].id == id) return i; 
+          }
+          return -1;
+        }
+
+        function checkIfCurrentAnswersCorrect () {
+            var current = window.data.answers.reduce(function (acc, e, i) {
+                                return (acc.length > 0) ? acc + "[,]" + e.id : e.id+"";
+                    }, "");
+            var shouldBe = window.data.answers.reduce(function (acc, e, i) {
+                                return (acc.length > 0) ? acc + "[,]" + (i+1) : (i+1)+"";
+                            }, "");
+            return !(Boolean(current.localeCompare(shouldBe)));
+        } 
+
         init();
 
         var isShowingSolution = false;
@@ -134,69 +208,10 @@
         setContext();
 
         // testingfunction for Testing only
-        function testingfunction (e) {document.getElementById('testingfunction').innerHTML = e;}
+        function testingfunction (e) {document.getElementById('testingfunction').innerHTML += JSON.stringify(e)+"<br>";}
         // testingfunction for Testing only
     </script>
     <!-- 
-
-
-        function onInteraction() {
-            var stmt = {};
-            // actor is set by hosting application
-            stmt.actor = undefined;
-            stmt.verb = {
-                "id": "http://adlnet.gov/expapi/verbs/interacted",
-                "display": {
-                    "de-DE": "interagierte",
-                    "en-US": "interacted",
-                    "fr-FR": "a interagi",
-                    "es-ES": "interactuó"
-                }
-            };
-            stmt.object = getXapiObject();
-            var checkboxes = document.getElementsByClassName('answerCheckbox');
-            var responses = [];
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    responses.push(i.toString());
-                }
-            }
-            stmt.result = {
-                response: responses.reduce(function (acc, e) {
-                    return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
-                }, "")
-            };
-            sendStatement(stmt);
-        }
-
-        function getXapiObject() {
-            return {
-                "objectType": "Activity",
-                // id is set by hosting application
-                "id": undefined,
-                "definition": {
-                    "description": {
-                        "de-AT": window.data.question
-                    },
-                    "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
-                    "interactionType": "choice",
-                    "choices": data.answers.map(function (e, i) {
-                        return {
-                            id: i.toString(),
-                            description: {
-                                "de-AT": e.value
-                            }
-                        }
-                    }),
-                    "correctResponsesPattern": [data.answers.map(function (e, i) {
-                                return e.correct ? i.toString() : ""
-                            })
-                            .reduce(function (acc, e) {
-                                return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
-                            }, "")]
-                }
-            };
-        }
 
         function onSubmit() {
             var checkboxLabels = document.getElementsByClassName('answerCheckboxLabel');
@@ -249,11 +264,8 @@
         
     </script>
 
-encodeURIComponent('{"title":"test","answers":[{"value":"Apfel","id":"1"},{"value":"Birnen","id":"2"},{"value":"Gurke","id":"3"},{"value":"Melone","id":"4"},{"value":"Kirsche","id":"5"}]}')
-http://www.goeschlberger.com/microcontent/?data=HIEREINFÜGEN&url=https://raw.githubusercontent.com/MicroContent/SimpleSortingContentViewer/master/index.html
 
-http://www.goeschlberger.com/microcontent/?data=%7B%22title%22%3A%22test%22%2C%22answers%22%3A%5B%7B%22value%22%3A%22Apfel%22%2C%22id%22%3A%221%22%7D%2C%7B%22value%22%3A%22Birnen%22%2C%22id%22%3A%222%22%7D%2C%7B%22value%22%3A%22Gurke%22%2C%22id%22%3A%223%22%7D%2C%7B%22value%22%3A%22Melone%22%2C%22id%22%3A%224%22%7D%2C%7B%22value%22%3A%22Kirsche%22%2C%22id%22%3A%225%22%7D%5D%7D&url=https://raw.githubusercontent.com/MicroContent/SimpleSortingContentViewer/master/index.html
-     --> 
+--> 
 
 </body>
 </html>
