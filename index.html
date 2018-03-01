@@ -27,15 +27,34 @@
             margin-left: 5px;
             height: fit-content;
             border: 0px;
+            border-radius: 100%;
+            width: 20px;
+            height: 20px;
+            margin-top: auto;
+            margin-bottom: auto;
+        } 
+        .answer > button > i {
+            margin-left: -2px;
+            font-size: inherit;
         }
-        .hide {
+        .answer > p {
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+        .answer > p:first-of-type {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .hide2 {
             visibility: hidden;
         }
         .answertrue {
             color: green;
+            text-decoration: solid;
         }
         .answerfalse {
             color: red;
+            text-decoration: line-through;
         }
     </style>
 </head>
@@ -89,15 +108,17 @@
             //testingfunction(window.data.answers);
             document.getElementById('sortingContainer').innerHTML = window.data.answers.map(
                     function (cur, i) {
-                        var buttonUp = '<button class="voteButton up'+cur.id+'" onclick="onMoveUp('+cur.id+')">+</button>';
-                        var buttonDown = '<button class="voteButton down'+cur.id+'" onclick="onMoveDown('+cur.id+')">-</button>';
-                        if (i==0) buttonUp = "";
-                        if (i==(window.data.answers.length-1)) buttonDown = "";
+                        var buttonStyle = "";
+                        var buttonUp = '<button class="'+buttonStyle+' voteButton up'+cur.id+'" onclick="onMoveUp('+cur.id+')"><i class="material-icons">expand_less</i></button>';
+                        var buttonDown = '<button class="'+buttonStyle+' voteButton down'+cur.id+'" onclick="onMoveDown('+cur.id+')"><i class="material-icons">expand_more</i></button>';
+                        if (i==0) buttonUp = '<button class="'+buttonStyle+' voteButton hide2 up'+cur.id+'" onclick="onMoveUp('+cur.id+')"><i class="material-icons">expand_more</i></button>';
+                        if (i==(window.data.answers.length-1)) buttonDown = '<button class="voteButton '+buttonStyle+' hide2 down'+cur.id+'" onclick="onMoveDown('+cur.id+')"><i class="material-icons">expand_less</i></button>';
                         return '<div id="answer'+ cur.id +'" class="answer">'+
-                                '<p>' + (i+1) +'. </p>' +
-                                '<p>' + cur.value +'</p>' +
                                 buttonUp+
                                 buttonDown+
+                                '<p id="solution'+cur.id+'">' +
+                                '<p>' + (i+1) +'. </p>' +
+                                '<p>' + cur.value +'</p>' +
                                 '</div>';
                     }).reduce(function (acc, cur) {
                 return acc + cur
@@ -105,6 +126,15 @@
         }
 
         function setContext(){
+            var context = document.getElementById('contextContainer');
+ 
+            if (window.data.answerContext.length == 0 && isShowingSolution) {
+                context.setAttribute('hidden', '');
+            } else if (isShowingSolution) context.removeAttribute('hidden');
+            if (window.data.questionContext.length == 0 && !isShowingSolution) {
+                context.setAttribute('hidden', '');
+            } else if (!isShowingSolution) context.removeAttribute('hidden'); 
+            
             document.getElementById('contextContentContainer').innerHTML =
                     isShowingSolution ? window.data.answerContext : window.data.questionContext;
             // we call showHide once to hide it for hint and to show it for explanation
@@ -141,32 +171,59 @@
                 //display answer state
                 var answers = document.getElementsByClassName('answer');
                 for (var i = 0; i < answers.length; i++) {
-                   if (window.data.answers[i].id == (i+1)) answers[i].classList.add("answertrue");
-                   else answers[i].classList.add("answerfalse");
+                   if (window.data.answers[i].id == (i+1)) {
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.classList.add("answertrue");
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.nextSibling.classList.add("answertrue");
+                   }
+                   else {
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.classList.add("answerfalse");
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.nextSibling.classList.add("answerfalse");
+                       //var solution = document.createElement("p");
+                       var solution = document.getElementById("solution"+(i+1));
+                       solution.classList.add("answertrue");
+                       solution.classList.add("solution");
+                       solution.innerHTML = window.data.answers[i].id + ". " + window.data.answers[i].value ;
+                       //answers[i].insertBefore(solution, answers[i].firstChild);
+                   }
                 }
 
                 //hide voting Buttons
                 var votingButtons = document.getElementsByClassName('voteButton');
                 for (var i = 0; i < votingButtons.length; i++) {
-                   votingButtons[i].classList.add("hide"); 
+                   votingButtons[i].classList.add("hide2"); 
                 }
             }
             else {
-                // remove classes and enable
-
                 //remove answer state
                 var answers = document.getElementsByClassName('answer');
                 for (var i = 0; i < answers.length; i++) {
-                   if (window.data.answers[i].id == (i+1)) answers[i].classList.remove("answertrue");
-                   else answers[i].classList.remove("answerfalse");
+                   if (window.data.answers[i].id == (i+1)) {
+                        answers[i].firstChild.nextSibling.nextSibling.nextSibling.classList.remove("answertrue");
+                        answers[i].firstChild.nextSibling.nextSibling.nextSibling.nextSibling.classList.remove("answertrue");
+                    }
+                   else {
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.classList.remove("answerfalse");
+                       answers[i].firstChild.nextSibling.nextSibling.nextSibling.nextSibling.classList.remove("answerfalse");
+                       var solution = document.getElementById("solution"+(i+1));
+                       solution.classList.remove("answertrue");
+                       solution.classList.remove("solution");
+                       solution.innerHTML = "";
+                   }
                 }
+                
+                
+                var solutions = document.getElementsByClassName('solution');
+                for (var i = 0; i < solutions.length; i++) {
+                solutions[i].parentNode.removeChild();
+                } 
 
                 // show voting buttons
                 var votingButtons = document.getElementsByClassName('voteButton');
                 for (var i = 0; i < votingButtons.length; i++) {
-                   votingButtons[i].classList.remove("hide"); 
+                   votingButtons[i].classList.remove("hide2"); 
                 }
-
+                
+                setSortingOptions();
                 isShowingSolution = false;
             }
             setContext();
@@ -244,12 +301,32 @@
             return !(Boolean(current.localeCompare(shouldBe)));
         } 
 
+        function shuffle (array) {
+            var counter = array.length;
+
+            // While there are elements in the array
+            while (counter > 0) {
+                // Pick a random index
+                var index = Math.floor(Math.random() * counter);
+
+                // Decrease counter by 1
+                counter = counter-1;
+
+                // And swap the last element with it
+                var temp = array[counter];
+                array[counter] = array[index];
+                array[index] = temp;
+            }
+            return array;
+        }
+
         function testingfunction (e) {
             // testingfunction for Testing only
             document.getElementById('testingfunction').innerHTML += JSON.stringify(e)+"<br>";
         }
 
         init();
+        window.data.answers = shuffle (window.data.answers);
 
         var isShowingSolution = false;
         var isContextShown = false;
@@ -258,62 +335,5 @@
         setSortingOptions();
         setContext();
     </script>
-    <!-- 
-
-
-        function onSubmit() {
-            var checkboxLabels = document.getElementsByClassName('answerCheckboxLabel');
-            var checkboxes = document.getElementsByClassName('answerCheckbox');
-            if (!isShowingSolution) {
-                var responses = [];
-                var allRight = true;
-                // assign classes and disable
-                for (var i = 0; i < checkboxes.length; i++) {
-                    var isChecked = checkboxes[i].checked;
-                    var isCorrect = window.data.answers[i].correct;
-                    allRight = allRight && (isChecked === isCorrect);
-                    checkboxLabels[i].classList.add(isChecked ? (isCorrect ? 'truechecked' : 'falsechecked') : (isCorrect ? 'trueunchecked' : 'falseunchecked'));
-                    checkboxes[i].setAttribute('disabled', 'true');
-                    if (isChecked) {
-                        responses.push(i.toString());
-                    }
-                }
-                var stmt = {};
-                // actor is set by hosting application
-                stmt.actor = undefined;
-                stmt.verb = {
-                    "id": "http://adlnet.gov/expapi/verbs/answered",
-                    "display": {
-                        "de-DE": "beantwortete",
-                        "en-US": "answered",
-                        "fr-FR": "a répondu",
-                        "es-ES": "contestó"
-                    }
-                };
-                stmt.object = getXapiObject();
-                stmt.result = {
-                    response: responses.reduce(function (acc, e) {
-                        return (acc.length > 0 && e.length > 0) ? acc + "[,]" + e : acc.length > 0 ? acc : e;
-                    }, ""),
-                    success: allRight
-                };
-                sendStatement(stmt);
-                isShowingSolution = true;
-            } else {
-                // remove classes and enable
-                for (var i = 0; i < checkboxes.length; i++) {
-                    checkboxLabels[i].setAttribute('class', 'answerCheckboxLabel');
-                    checkboxes[i].removeAttribute('disabled');
-                }
-                isShowingSolution = false;
-            }
-            setContext();
-        }
-        
-    </script>
-
-
---> 
-
 </body>
 </html>
